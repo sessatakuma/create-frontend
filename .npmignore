@@ -11,7 +11,7 @@ dist/
 # Repository automation
 .github/
 docs/
-packages/create-rail/
+packages/create-frontend/
 scripts/
 
 # Registry auth config

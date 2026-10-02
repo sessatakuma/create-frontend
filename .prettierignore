@@ -1,19 +1,11 @@
-# Dependencies
 node_modules/
-
-# Build output
 dist/
+.next/
+.open-next/
+.cloudflare-check/
+.wrangler/
 *.tsbuildinfo
-
-# IDE files
-.vscode/
-
-# GitHub config
-.github/
-
-# Lock files
 bun.lock
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
 release-it*.config.cjs
+packages/create-frontend/design/
+packages/create-frontend/lockfiles/

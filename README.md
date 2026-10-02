@@ -1,47 +1,67 @@
-# Rail
+# Sessatakuma Frontend
 
-Start building your app and keep your agent on the rails.
+Create a Sessatakuma frontend repository with strict React/TypeScript tooling,
+repository-local CI and policies, frozen Bun lockfiles, and Cloudflare deployment
+configuration. This is the org-specific fork of [Rail](https://github.com/sago-cream/rail).
 
-Rail creates a ready-to-code Vite or Next.js React app with strict TypeScript,
-linting, formatting, pre-commit checks, and dependency age gates. This lets your agents iterate with forced clean code, best practices, and stay safe from supply-chain attacks.
+## Create a frontend
 
-## What Rail sets up
-
-- Vite or Next.js App Router SPA export
-- React 19 and TypeScript 6
-- ESLint with `eslint-config-complete`
-- Prettier with sorted imports
-- Husky and lint-staged checks for generated Git repositories
-- Package-age gating for supply-chain security
-- VS Code linting and formatting settings
-- Styled or minimal starter CSS
-- Optional Lucide React and TanStack React Query
-
-## Create an App
-
-### npm 
+The package is prepared as `@sessatakuma/create-frontend`. Until its first npm
+release, use the checked-out CLI:
 
 ```bash
-npm create rail@latest
+bun install --frozen-lockfile
+node packages/create-frontend/bin/create-frontend.mjs my-product --vite
 ```
 
-### yarn
+Once published:
 
 ```bash
-yarn create rail
+bunx @sessatakuma/create-frontend my-product --vite
 ```
 
-### pnpm
+The default flow creates `sessatakuma/my-product`, uses the authenticated creator
+as maintainer, installs from a bundled frozen lockfile, pushes an initial
+Conventional Commit to `main`, and applies the checked-in repository ruleset.
+Pass `--maintainer another-member` to name another org member. CODEOWNERS always
+names that target maintainer; remote setup verifies write access.
+
+For a scaffold without GitHub calls:
 
 ```bash
-pnpm create rail@latest
+node packages/create-frontend/bin/create-frontend.mjs my-product --noRepo --maintainer your-login
 ```
 
-### bun
+## Included
+
+- Vite SPA or Next.js/OpenNext for Cloudflare Workers
+- Bun 1.3.9, Node.js 22.22.2, strict TypeScript and ESLint, Prettier, and a seven-day dependency age gate
+- Checked-in lockfiles for every Lucide/TanStack Query combination; installation always uses `--frozen-lockfile`
+- Local CI for frontend/config checks and PR conventions, with Actions pinned to commit SHAs
+- Local PR template, maintainer CODEOWNERS, and repository ruleset
+- The exact `design.md`, its assets, and reference documents from a pinned `sessatakuma/design.md` commit, with provenance and SHA-256
+- Explicit Cloudflare account, Worker name, custom domain, build/preview/deploy commands, and Workers Builds instructions
+
+Generated repos use their committed configuration. Authentication, dependency,
+configuration, permission, or policy failures stop the command with an error.
+Local-only modes are explicit choices. No AGENTS.md or Copilot instructions are
+generated.
+
+Cloudflare files use the account declared in Jacarda's configuration,
+`2aeb222b4193b179e0f6ad7c7ae4b91f`, and `<repo>.sessatakuma.dev`. Both values can be
+explicitly overridden. Scaffolding prepares these files; it does not deploy a
+Worker or connect Workers Builds.
+
+[CLI options](docs/CLI.md) · [Release and bundle maintenance](docs/releasing.md)
+
+## Verify
 
 ```bash
-bun create rail@latest
+bun install --frozen-lockfile
+bun run check
+bun run test
+bun run verify:presets
 ```
 
-Full CLI usage, flags, and repository behavior are documented in
-[`docs/CLI.md`](./docs/CLI.md).
+The preset verification performs real frozen installs, checks, Cloudflare builds,
+and deployment dry runs for Vite and Next.js. GitHub creation tests use mocks.
