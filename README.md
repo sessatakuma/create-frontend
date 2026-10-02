@@ -26,7 +26,7 @@ Conventional Commit to `main`, and applies the checked-in repository ruleset.
 Pass `--maintainer another-member` to name another org member. CODEOWNERS always
 names that target maintainer; remote setup verifies write access.
 
-For a scaffold without GitHub calls:
+For a scaffold without creating a GitHub repository:
 
 ```bash
 node packages/create-frontend/bin/create-frontend.mjs my-product --noRepo --maintainer your-login
@@ -47,8 +47,8 @@ configuration, permission, or policy failures stop the command with an error.
 Local-only modes are explicit choices. No AGENTS.md or Copilot instructions are
 generated.
 
-Every creation mode requires Git and network access to fetch `sessatakuma/design.md`
-main. The CLI fetches once, copies that exact commit into the new repository,
+Every creation mode requires Git, network access, and authenticated read access to
+the private `sessatakuma/design.md` repository. The CLI fetches main once, copies that exact commit into the new repository,
 and fails before writing the scaffold if the fetch or source bundle is incomplete.
 Generated repositories keep their copied design snapshot until deliberately updated.
 
@@ -69,4 +69,7 @@ bun run verify:presets
 ```
 
 The preset verification performs real frozen installs, checks, Cloudflare builds,
-and deployment dry runs for Vite and Next.js. GitHub creation tests use mocks.
+and deployment dry runs for Vite and Next.js, fetching live design main through
+your Git credentials. CI runs `bun run verify:presets --fixture-design` with an
+explicit local Git fixture because its token is scoped to this repository.
+The CLI itself always fetches the real design repository. GitHub creation tests use mocks.

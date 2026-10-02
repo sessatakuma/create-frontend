@@ -49,5 +49,8 @@ design repository's main branch takes effect for the next CLI run without a
 generator release. Existing generated repositories retain their copied snapshot.
 
 Tests use local Git fixtures to verify main updates and fetch/source failures.
-Preset verification fetches the actual design repository before building each app.
+Default preset verification fetches the actual private design repository using
+your Git credentials before building each app. CI explicitly runs
+`bun run verify:presets --fixture-design` to build both presets with a local Git
+fixture; its repository-scoped token does not have access to the private design repo.
 Upstream MIT attribution and fetched font/Lucide license notices are retained.

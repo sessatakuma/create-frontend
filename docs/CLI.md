@@ -40,7 +40,9 @@ During every CLI run, Git fetches the latest `sessatakuma/design.md` main revisi
 The CLI copies the guide, assets, licenses, and any reference documents from that
 single commit, preserves their bytes, and records the revision and guide checksum.
 The generated favicon uses the fetched logo. Git and network access are required
-in all modes, including `--local` and `--noRepo`. A failed fetch or incomplete
+with read access to the private design repository in all modes, including
+`--local` and `--noRepo`. Configure Git's GitHub credentials first (for example,
+`gh auth login` followed by `gh auth setup-git`). A failed fetch or incomplete
 source stops creation before the scaffold is written; there is no cached design fallback.
 Org PR-template inheritance, shared CI fallback, and config injection are not used.
 
