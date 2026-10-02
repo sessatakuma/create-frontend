@@ -9,6 +9,4 @@ bun.lock
 release-it*.config.cjs
 design.md
 assets/
-docs/design-*.md
-docs/calibration/
-docs/showcase*
+docs/

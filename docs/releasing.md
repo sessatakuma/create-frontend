@@ -39,19 +39,15 @@ locks using the same age gate. Copy the default Vite lock to
 `packages/create-frontend/template/bun.lock` when updating the template baseline.
 Scaffolding and CI never run lock refresh.
 
-## Update bundled design guidance
+## Design source at creation time
 
-The initial bundle is sourced from `sessatakuma/design.md` PR #1 at the full
-revision recorded in `packages/create-frontend/design/design-source.json`.
-Refresh from a reviewed immutable revision:
+Each CLI run fetches the latest `sessatakuma/design.md` main commit and copies its
+guide, assets, licenses, and any reference documents into the generated repository.
+The npm package ships the fetcher; it does not contain a release-time design snapshot.
+Generated provenance records the fetched commit and guide SHA-256. Updating the
+design repository's main branch takes effect for the next CLI run without a
+generator release. Existing generated repositories retain their copied snapshot.
 
-```bash
-bun run sync:design <full-reviewed-commit-sha>
-bun run check
-bun run test
-```
-
-The sync command copies the exact guide, assets, and references, and records its
-SHA-256. It fails if the pinned guide cannot be fetched. Commit the source bundle
-and provenance together; each generator release ships its own complete copy.
-Upstream MIT attribution and bundled font/Lucide license notices are retained.
+Tests use local Git fixtures to verify main updates and fetch/source failures.
+Preset verification fetches the actual design repository before building each app.
+Upstream MIT attribution and fetched font/Lucide license notices are retained.

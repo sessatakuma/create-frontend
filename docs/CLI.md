@@ -35,9 +35,14 @@ available. If a remote step fails after creation, the command reports failure;
 inspect the already-created repository and finish that step before retrying.
 
 Every scaffold includes local `.github` policy/workflow files and root
-`design.md`, `design-source.json`, `assets/`, and its reference `docs/`.
-The guide is copied byte-for-byte from the bundled source; no runtime fetch,
-org PR-template inheritance, shared CI fallback, or config injection is needed.
+`design.md`, `design-source.json`, `assets/`, and reference `docs/` when present upstream.
+During every CLI run, Git fetches the latest `sessatakuma/design.md` main revision.
+The CLI copies the guide, assets, licenses, and any reference documents from that
+single commit, preserves their bytes, and records the revision and guide checksum.
+The generated favicon uses the fetched logo. Git and network access are required
+in all modes, including `--local` and `--noRepo`. A failed fetch or incomplete
+source stops creation before the scaffold is written; there is no cached design fallback.
+Org PR-template inheritance, shared CI fallback, and config injection are not used.
 
 ## Examples
 

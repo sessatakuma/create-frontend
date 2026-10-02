@@ -5,8 +5,11 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { createDesignFixture } from './fixtures/design.mjs';
+
 const scratch = mkdtempSync(path.join(tmpdir(), 'sessatakuma-policies-'));
 test.after(() => rmSync(scratch, { recursive: true, force: true }));
+const fixture = createDesignFixture(scratch);
 
 test('missing configs and invalid config syntax fail without injection', () => {
     const target = path.join(scratch, 'config-app');
@@ -20,7 +23,7 @@ test('missing configs and invalid config syntax fail without injection', () => {
             '--maintainer',
             'owner',
         ],
-        { stdio: 'pipe' }
+        { stdio: 'pipe', env: fixture.env }
     );
     const script = path.resolve('scripts/check-config.mjs');
     assert.equal(

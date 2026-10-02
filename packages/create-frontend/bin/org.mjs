@@ -5,12 +5,6 @@ export const organization = 'sessatakuma';
 export const bunVersion = '1.3.9';
 export const nodeVersion = '22.22.2';
 export const cloudflareAccount = '2aeb222b4193b179e0f6ad7c7ae4b91f';
-export const designRevision = JSON.parse(
-    readFileSync(
-        new URL('../design/design-source.json', import.meta.url),
-        'utf8'
-    )
-).revision;
 
 export function lockVariant(framework, lucide, query) {
     return `${framework}-${lucide ? 'lucide' : 'no-lucide'}-${query ? 'query' : 'no-query'}`;

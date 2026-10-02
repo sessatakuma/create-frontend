@@ -13,10 +13,16 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { parse as parseJsonc } from 'jsonc-parser';
 
+import {
+    commitDesignFixture,
+    createDesignFixture,
+} from './fixtures/design.mjs';
+
 const cli = path.resolve('packages/create-frontend/bin/create-frontend.mjs');
-const design = readFileSync('packages/create-frontend/design/design.md');
 const scratch = mkdtempSync(path.join(tmpdir(), 'sessatakuma-generator-'));
 test.after(() => rmSync(scratch, { recursive: true, force: true }));
+const fixture = createDesignFixture(scratch);
+const design = readFileSync(path.join(fixture.repository, 'design.md'));
 
 /**
  * @param {string} name
@@ -35,7 +41,7 @@ function generate(name, flags = []) {
             'project-owner',
             ...flags,
         ],
-        { encoding: 'utf8' }
+        { encoding: 'utf8', env: fixture.env }
     );
     assert.equal(
         result.status,
@@ -96,6 +102,24 @@ test('every dependency variant installs from a bundled frozen lockfile', () => {
                 assert.equal(
                     provenance.sha256,
                     createHash('sha256').update(design).digest('hex')
+                );
+                assert.equal(provenance.branch, 'main');
+                assert.equal(provenance.revision, fixture.revision);
+                for (const file of [
+                    'assets/logo-64.png',
+                    'assets/LICENSE.txt',
+                    'docs/reference.md',
+                ]) {
+                    assert.deepEqual(
+                        readFileSync(path.join(target, file)),
+                        readFileSync(path.join(fixture.repository, file))
+                    );
+                }
+                assert.deepEqual(
+                    readFileSync(path.join(target, 'public/favicon.png')),
+                    readFileSync(
+                        path.join(fixture.repository, 'assets/logo-64.png')
+                    )
                 );
                 assert.equal(
                     readFileSync(
@@ -171,7 +195,7 @@ test('deployment and maintainer inputs are explicit and local Git keeps hooks', 
             'product.example.org',
             '--minimal',
         ],
-        { encoding: 'utf8' }
+        { encoding: 'utf8', env: fixture.env }
     );
     assert.equal(
         result.status,
@@ -236,4 +260,99 @@ test('frozen install rejects manifest changes instead of resolving a new lock', 
         { cwd: target, encoding: 'utf8' }
     );
     assert.notEqual(result.status, 0);
+});
+
+test('each CLI run copies the newly fetched main snapshot and records its revision', () => {
+    const before = generate('design-before');
+    writeFileSync(
+        path.join(fixture.repository, 'design.md'),
+        '# Latest design\n\nNew main content.\n'
+    );
+    writeFileSync(
+        path.join(fixture.repository, 'docs/new-reference.md'),
+        '# New reference\n\nKeep  these spaces.  \n'
+    );
+    writeFileSync(
+        path.join(fixture.repository, 'assets/logo-64.png'),
+        Buffer.from('updated-logo')
+    );
+    const latest = commitDesignFixture(fixture.repository);
+    const after = generate('design-after');
+    const provenance = JSON.parse(
+        readFileSync(path.join(after, 'design-source.json'), 'utf8')
+    );
+    assert.notEqual(latest, fixture.revision);
+    assert.equal(provenance.revision, latest);
+    assert.equal(
+        provenance.sha256,
+        createHash('sha256')
+            .update(readFileSync(path.join(after, 'design.md')))
+            .digest('hex')
+    );
+    assert.deepEqual(readFileSync(path.join(before, 'design.md')), design);
+    for (const file of [
+        'design.md',
+        'assets/logo-64.png',
+        'docs/new-reference.md',
+    ]) {
+        assert.deepEqual(
+            readFileSync(path.join(after, file)),
+            readFileSync(path.join(fixture.repository, file))
+        );
+    }
+    assert.deepEqual(
+        readFileSync(path.join(after, 'public/favicon.png')),
+        readFileSync(path.join(fixture.repository, 'assets/logo-64.png'))
+    );
+    assert.match(
+        readFileSync(path.join(after, 'README.md'), 'utf8'),
+        new RegExp(latest)
+    );
+});
+
+test('main without optional reference docs still copies its guide and assets', () => {
+    rmSync(path.join(fixture.repository, 'docs'), { recursive: true });
+    const revision = commitDesignFixture(fixture.repository);
+    const target = generate('design-without-docs');
+    assert.equal(existsSync(path.join(target, 'docs')), false);
+    assert.deepEqual(
+        readFileSync(path.join(target, 'design.md')),
+        readFileSync(path.join(fixture.repository, 'design.md'))
+    );
+    assert.equal(
+        JSON.parse(
+            readFileSync(path.join(target, 'design-source.json'), 'utf8')
+        ).revision,
+        revision
+    );
+});
+
+test('a failed design fetch or incomplete main snapshot stops before creating the target', () => {
+    for (const failure of ['fetch', 'archive']) {
+        const target = path.join(scratch, `design-failure-${failure}`);
+        const result = spawnSync(
+            process.execPath,
+            [cli, target, '--noRepo', '--noInstall', '--maintainer', 'owner'],
+            {
+                encoding: 'utf8',
+                env: { ...fixture.env, MOCK_DESIGN_FAIL: failure },
+            }
+        );
+        assert.notEqual(result.status, 0);
+        assert.equal(existsSync(target), false);
+        assert.match(
+            String(result.stdout) + String(result.stderr),
+            /Cannot bundle .*design\.md main/
+        );
+    }
+    rmSync(path.join(fixture.repository, 'design.md'));
+    commitDesignFixture(fixture.repository);
+    const target = path.join(scratch, 'missing-design-guide');
+    const result = spawnSync(
+        process.execPath,
+        [cli, target, '--noRepo', '--noInstall', '--maintainer', 'owner'],
+        { encoding: 'utf8', env: fixture.env }
+    );
+    assert.notEqual(result.status, 0);
+    assert.equal(existsSync(target), false);
 });

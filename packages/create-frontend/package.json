@@ -32,7 +32,6 @@
         "bin",
         "template",
         "lockfiles",
-        "design",
         "README.md",
         "bun.lock"
     ],

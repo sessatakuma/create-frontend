@@ -12,8 +12,11 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { createDesignFixture, designGitMock } from './fixtures/design.mjs';
+
 const scratch = mkdtempSync(path.join(tmpdir(), 'sessatakuma-github-'));
 test.after(() => rmSync(scratch, { recursive: true, force: true }));
+const fixture = createDesignFixture(scratch);
 const mockBin = path.join(scratch, 'bin');
 mkdirSync(mockBin);
 const mock = String.raw`#!${process.execPath}
@@ -24,6 +27,7 @@ const args = process.argv.slice(2);
 const input = args.includes('--input') ? fs.readFileSync(0, 'utf8') : '';
 fs.appendFileSync(process.env.MOCK_LOG, JSON.stringify({ tool, args, input }) + '\n');
 const command = args.join(' ');
+${designGitMock}
 if (process.env.MOCK_FAIL === 'auth' && command === 'auth status') { process.exit(1); }
 if (process.env.MOCK_FAIL === 'rules' && command.includes('/rulesets')) { process.exit(1); }
 if (tool === 'gh') {
@@ -58,7 +62,7 @@ function invoke(name, flags = [], fail = '') {
         {
             encoding: 'utf8',
             env: {
-                ...process.env,
+                ...fixture.env,
                 PATH: `${mockBin}:${process.env.PATH}`,
                 MOCK_LOG: log,
                 MOCK_FAIL: fail,

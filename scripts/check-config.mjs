@@ -17,10 +17,7 @@ const required = [
     '.github/PULL_REQUEST_TEMPLATE.md',
     '.github/ruleset.json',
     ...(generator
-        ? [
-              'packages/create-frontend/design/design.md',
-              'packages/create-frontend/design/design-source.json',
-          ]
+        ? ['packages/create-frontend/bin/design.mjs']
         : ['design.md', 'design-source.json', 'wrangler.jsonc']),
 ];
 let failed = false;

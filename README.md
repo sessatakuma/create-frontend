@@ -39,13 +39,18 @@ node packages/create-frontend/bin/create-frontend.mjs my-product --noRepo --main
 - Checked-in lockfiles for every Lucide/TanStack Query combination; installation always uses `--frozen-lockfile`
 - Local CI for frontend/config checks and PR conventions, with Actions pinned to commit SHAs
 - Local PR template, maintainer CODEOWNERS, and repository ruleset
-- The exact `design.md`, its assets, and reference documents from a pinned `sessatakuma/design.md` commit, with provenance and SHA-256
+- The latest `sessatakuma/design.md` main snapshot fetched during creation: exact guide, assets, licenses, and any reference documents, with the fetched commit and SHA-256 recorded
 - Explicit Cloudflare account, Worker name, custom domain, build/preview/deploy commands, and Workers Builds instructions
 
 Generated repos use their committed configuration. Authentication, dependency,
 configuration, permission, or policy failures stop the command with an error.
 Local-only modes are explicit choices. No AGENTS.md or Copilot instructions are
 generated.
+
+Every creation mode requires Git and network access to fetch `sessatakuma/design.md`
+main. The CLI fetches once, copies that exact commit into the new repository,
+and fails before writing the scaffold if the fetch or source bundle is incomplete.
+Generated repositories keep their copied design snapshot until deliberately updated.
 
 Cloudflare files use the account declared in Jacarda's configuration,
 `2aeb222b4193b179e0f6ad7c7ae4b91f`, and `<repo>.sessatakuma.dev`. Both values can be

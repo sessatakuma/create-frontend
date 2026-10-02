@@ -14,8 +14,10 @@ maintainer. The default maintainer is the authenticated creator; missing GitHub
 access is an error. Bun 1.3.9 is required for installation. Generation prepares
 Cloudflare deployment files; deployment is a later explicit command.
 
-Every app includes the pinned `sessatakuma/design.md` guide and its assets and
-references. The included provenance records the source revision and checksum.
+Every CLI run fetches `sessatakuma/design.md` main and copies its exact guide,
+assets, licenses, and any references into the new app. Git and network access are
+required in every mode; fetch/source failures stop creation without a cached
+fallback. The included provenance records the fetched revision and checksum.
 
 See [CLI options](https://github.com/sessatakuma/rail/blob/main/docs/CLI.md) and
-[bundle maintenance](https://github.com/sessatakuma/rail/blob/main/docs/releasing.md).
+[release maintenance](https://github.com/sessatakuma/rail/blob/main/docs/releasing.md).

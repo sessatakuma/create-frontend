@@ -12,6 +12,7 @@ import {
 } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 
+import { fetchLatestDesign } from './design.mjs';
 import { formatScaffold } from './format.mjs';
 import {
     authenticatedMaintainer,
@@ -21,7 +22,6 @@ import {
 import {
     bunVersion,
     cloudflareAccount,
-    designRevision,
     lockVariant,
     organization,
     projectPackage,
@@ -64,6 +64,7 @@ Creates sessatakuma/<name> with maintainer CODEOWNERS and Cloudflare files.
   --query / --noQuery          TanStack Query (default: omitted)
   --open / --noOpen            Vite dev browser (default: closed)
 
+Every run fetches sessatakuma/design.md main; Git and network access are required.
 Use Bun ${bunVersion}. Deployment occurs only when you run the generated deploy script.`);
     process.exit(0);
 }
@@ -113,12 +114,25 @@ async function main() {
         verifyGitHubPlan(repoPlan);
     }
 
+    section('Fetching sessatakuma/design.md main');
+    const design = fetchLatestDesign();
+    try {
+        console.log(`- design revision: ${design.revision}`);
+        await scaffold(repoPlan, design);
+    } finally {
+        design.dispose();
+    }
+}
+
+async function scaffold(repoPlan, design) {
     section(`Copying ${frameworkLabel(selectedFramework)} template`);
     cpSync(templatePath, targetPath, { recursive: true });
     renameSync(join(targetPath, 'gitignore'), join(targetPath, '.gitignore'));
-    cpSync(new URL('../design/', import.meta.url), targetPath, {
-        recursive: true,
-    });
+    cpSync(design.directory, targetPath, { recursive: true });
+    cpSync(
+        join(design.directory, 'assets/logo-64.png'),
+        join(targetPath, 'public/favicon.png')
+    );
     writeFileSync(
         join(targetPath, '.github/CODEOWNERS'),
         `* @${repoPlan.maintainer}\n`
@@ -161,7 +175,7 @@ async function main() {
     updateGitIgnore();
     updatePackageManagerFiles();
     updateGitHooks(repoPlan);
-    writeAppReadme();
+    writeAppReadme(design.revision);
     await formatScaffold(targetPath);
 
     applyLocalRepoPlan(repoPlan);
@@ -189,7 +203,10 @@ function run(command, args, options = {}) {
         });
     } catch (error) {
         const details = error.stderr?.toString().trim() || error.message;
-        fail(`Failed to run: ${command} ${args.join(' ')}\n${details}`);
+        throw new Error(
+            `Failed to run: ${command} ${args.join(' ')}\n${details}`,
+            { cause: error }
+        );
     }
 }
 
@@ -309,7 +326,7 @@ function installDependencies() {
     run('bun', ['install', '--frozen-lockfile'], { cwd: targetPath });
 }
 
-function writeAppReadme() {
+function writeAppReadme(designRevision) {
     const next = selectedFramework === 'next';
     const readme = `# ${appName}
 
@@ -317,7 +334,7 @@ Created with Sessatakuma Frontend for ${organization}/${projectPlan.repoName}.
 Maintainer: @${projectPlan.maintainer}.
 
 Read [design.md](design.md) before making interface changes. The guide, assets,
-and reference documents are bundled from [sessatakuma/design.md](https://github.com/sessatakuma/design.md/tree/${designRevision}).
+and any reference documents are copied from [sessatakuma/design.md main](https://github.com/sessatakuma/design.md/tree/${designRevision}) fetched when this repository was created.
 The exact source and checksum are recorded in [design-source.json](design-source.json).
 
 ## Development

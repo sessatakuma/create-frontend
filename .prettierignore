@@ -7,5 +7,4 @@ dist/
 *.tsbuildinfo
 bun.lock
 release-it*.config.cjs
-packages/create-frontend/design/
 packages/create-frontend/lockfiles/
