@@ -54,7 +54,7 @@ export function writeCloudflareFiles(target, framework, name, account, domain) {
         $schema: './node_modules/wrangler/config-schema.json',
         name,
         account_id: account,
-        compatibility_date: '2026-07-22',
+        compatibility_date: '2026-07-17',
         workers_dev: false,
         preview_urls: true,
         routes: [{ pattern: domain, custom_domain: true }],
