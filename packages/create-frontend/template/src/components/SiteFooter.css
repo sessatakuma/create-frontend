@@ -1,0 +1,127 @@
+.site-footer {
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: var(--space-48) 0 0;
+    background: var(--color-accent-green);
+    color: var(--color-text-inverted);
+}
+
+.footer-inner {
+    width: 100%;
+    padding-inline: var(--space-32);
+    margin-bottom: var(--space-80);
+}
+
+.footer-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-32);
+}
+
+.footer-brand {
+    display: block;
+    flex-shrink: 0;
+}
+
+.footer-bear {
+    display: block;
+    width: var(--size-footer-bear);
+    height: var(--size-footer-bear);
+    object-fit: contain;
+}
+
+.footer-contact {
+    display: grid;
+    justify-items: end;
+    margin-left: auto;
+}
+
+.footer-social {
+    display: flex;
+}
+
+.footer-social-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-social-control);
+    height: var(--size-social-control);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: inherit;
+    transition: background-color var(--duration-interaction) ease;
+}
+
+.footer-social-control:hover {
+    background: color-mix(in srgb, var(--color-text-inverted) 12%, transparent);
+}
+
+.footer-social-control img {
+    width: var(--size-social-icon);
+    height: var(--size-social-icon);
+    filter: brightness(0) invert(1);
+}
+
+.footer-email {
+    font-size: var(--font-size-body);
+    font-weight: 400;
+    white-space: nowrap;
+    text-underline-offset: 0.2em;
+}
+
+.footer-status {
+    margin-top: var(--space-8);
+    font-size: var(--font-size-body);
+}
+
+.site-footer :focus-visible {
+    outline-color: var(--color-text-inverted);
+}
+
+.footer-purpose {
+    width: 50%;
+    margin-top: var(--space-32);
+    font-size: var(--font-size-body);
+    line-height: 1.75;
+}
+
+.footer-wordmark {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    width: 100%;
+    margin: 0;
+    padding: 0.18em 0 0;
+    color: var(--color-text-inverted);
+    font-family: var(--font-body);
+    font-size: clamp(4rem, 15vw, 14rem);
+    font-weight: 700;
+    line-height: 0.82;
+    letter-spacing: normal;
+    word-spacing: normal;
+}
+
+.footer-wordmark span {
+    display: block;
+    white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+    .footer-purpose {
+        width: 100%;
+    }
+
+    .footer-wordmark {
+        flex-wrap: wrap;
+        font-size: 26vw;
+        text-align: center;
+    }
+
+    .footer-wordmark span {
+        flex-basis: 100%;
+    }
+}

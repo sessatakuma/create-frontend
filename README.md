@@ -40,6 +40,7 @@ node packages/create-frontend/bin/create-frontend.mjs my-product --noRepo --main
 - Local CI for frontend/config checks and PR conventions, with Actions pinned to commit SHAs
 - Local PR template, maintainer CODEOWNERS, and repository ruleset
 - The latest `sessatakuma/design.md` main snapshot fetched during creation: exact guide, assets, licenses, and any reference documents, with the fetched commit and SHA-256 recorded
+- A default starter matching the guide: locally loaded Noto Sans JP, warm gray canvas, sage header/footer, original bear, shared contact details, and responsive wordmark
 - Explicit Cloudflare account, Worker name, custom domain, build/preview/deploy commands, and Workers Builds instructions
 
 Generated repos use their committed configuration. Authentication, dependency,

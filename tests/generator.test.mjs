@@ -107,6 +107,9 @@ test('every dependency variant installs from a bundled frozen lockfile', () => {
                 assert.equal(provenance.revision, fixture.revision);
                 for (const file of [
                     'assets/logo-64.png',
+                    'assets/logo-128.png',
+                    'assets/fonts/fonts.css',
+                    'assets/social-icons.json',
                     'assets/LICENSE.txt',
                     'docs/reference.md',
                 ]) {
@@ -345,6 +348,19 @@ test('a failed design fetch or incomplete main snapshot stops before creating th
             /Cannot bundle .*design\.md main/
         );
     }
+    const fontPath = path.join(fixture.repository, 'assets/fonts/fonts.css');
+    const fonts = readFileSync(fontPath);
+    rmSync(fontPath);
+    commitDesignFixture(fixture.repository);
+    const fontTarget = path.join(scratch, 'missing-design-fonts');
+    const missingFonts = spawnSync(
+        process.execPath,
+        [cli, fontTarget, '--noRepo', '--noInstall', '--maintainer', 'owner'],
+        { encoding: 'utf8', env: fixture.env }
+    );
+    assert.notEqual(missingFonts.status, 0);
+    assert.equal(existsSync(fontTarget), false);
+    writeFileSync(fontPath, fonts);
     rmSync(path.join(fixture.repository, 'design.md'));
     commitDesignFixture(fixture.repository);
     const target = path.join(scratch, 'missing-design-guide');

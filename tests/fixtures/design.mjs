@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const realGit = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
@@ -68,6 +68,28 @@ export function createDesignFixture(root) {
     writeFileSync(
         path.join(repository, 'assets/LICENSE.txt'),
         'Fixture license\n'
+    );
+    writeFileSync(
+        path.join(repository, 'assets/logo-128.png'),
+        readFileSync(path.join(repository, 'assets/logo-64.png'))
+    );
+    mkdirSync(path.join(repository, 'assets/fonts'));
+    writeFileSync(
+        path.join(repository, 'assets/fonts/fonts.css'),
+        ':root {}\n'
+    );
+    writeFileSync(
+        path.join(repository, 'assets/social-icons.json'),
+        JSON.stringify(
+            Object.fromEntries(
+                ['Instagram', 'Threads', 'Facebook', 'GitHub'].map(
+                    (service) => [
+                        service,
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>',
+                    ]
+                )
+            )
+        )
     );
     writeFileSync(
         path.join(repository, 'docs/reference.md'),

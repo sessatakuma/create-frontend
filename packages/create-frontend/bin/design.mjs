@@ -61,6 +61,25 @@ export function fetchLatestDesign() {
         execFileSync('tar', ['-x', '-C', directory], { input: archive });
         const guide = readFileSync(join(directory, 'design.md'));
         readFileSync(join(directory, 'assets/logo-64.png'));
+        readFileSync(join(directory, 'assets/logo-128.png'));
+        const fonts = readFileSync(
+            join(directory, 'assets/fonts/fonts.css'),
+            'utf8'
+        );
+        for (const [, file] of fonts.matchAll(/url\(["']?([^"')]+)["']?\)/g)) {
+            readFileSync(join(directory, 'assets/fonts', file));
+        }
+        const icons = JSON.parse(
+            readFileSync(join(directory, 'assets/social-icons.json'), 'utf8')
+        );
+        for (const service of ['Instagram', 'Threads', 'Facebook', 'GitHub']) {
+            if (
+                typeof icons[service] !== 'string' ||
+                !icons[service].startsWith('<svg ')
+            ) {
+                throw new Error(`Missing ${service} social mark.`);
+            }
+        }
         writeFileSync(
             join(directory, 'design-source.json'),
             `${JSON.stringify({ repository, branch: 'main', revision, path: 'design.md', sha256: createHash('sha256').update(guide).digest('hex') }, null, 4)}\n`

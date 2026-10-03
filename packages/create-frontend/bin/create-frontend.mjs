@@ -133,6 +133,21 @@ async function scaffold(repoPlan, design) {
         join(design.directory, 'assets/logo-64.png'),
         join(targetPath, 'public/favicon.png')
     );
+    const brandPath = join(targetPath, 'public/brand');
+    mkdirSync(brandPath, { recursive: true });
+    cpSync(
+        join(design.directory, 'assets/logo-128.png'),
+        join(brandPath, 'logo-128.png')
+    );
+    const socialIcons = JSON.parse(
+        readFileSync(join(design.directory, 'assets/social-icons.json'), 'utf8')
+    );
+    for (const service of ['Instagram', 'Threads', 'Facebook', 'GitHub']) {
+        writeFileSync(
+            join(brandPath, `${service.toLowerCase()}.svg`),
+            `${socialIcons[service]}\n`
+        );
+    }
     writeFileSync(
         join(targetPath, '.github/CODEOWNERS'),
         `* @${repoPlan.maintainer}\n`
@@ -284,10 +299,24 @@ function updateFrameworkFiles() {
 
 function updateStylingFiles(globalCssPath) {
     if (selectedStyling === 'styled') {
+        const prefix = selectedFramework === 'next' ? '../../' : '../';
+        writeFileSync(
+            globalCssPath,
+            `@import '${prefix}assets/fonts/fonts.css';\n${readFileSync(globalCssPath, 'utf8')}`
+        );
         return;
     }
 
     rmSync(join(targetPath, 'src/constants'), { force: true, recursive: true });
+    for (const file of [
+        'App.css',
+        'SiteHeader.tsx',
+        'SiteHeader.css',
+        'SiteFooter.tsx',
+        'SiteFooter.css',
+    ]) {
+        rmSync(join(targetPath, 'src/components', file), { force: true });
+    }
     writeFileSync(globalCssPath, minimalGlobalCss());
 }
 
@@ -820,25 +849,19 @@ export function App(): JSX.Element {
 `;
     }
 
-    return `import type { JSX } from 'react';
-
-export function App(): JSX.Element {
-    // Keep App.tsx coordinating screens and providers. Extract components early so this never
-    // becomes a 3,000-line god file.
-    return (
-        <main className='app'>
-            <section className='app__content'>
-                <p className='app__eyebrow'>${appName}</p>
-                <h1 className='app__title'>${frameworkTitle(selectedFramework)}</h1>
-                <p className='app__description'>
-                    A clean baseline with strict tooling, useful tokens, and no
-                    unnecessary UI noise.
-                </p>
-            </section>
-        </main>
+    const component = readFileSync(
+        new URL('../template/src/components/App.tsx', import.meta.url),
+        'utf8'
+    ).replace(
+        "productName = 'Sessatakuma Frontend'",
+        `productName = '${appName}'`
     );
-}
-`;
+
+    return selectedFramework === 'next'
+        ? component
+              .replace("'./SiteFooter.js'", "'@/components/SiteFooter'")
+              .replace("'./SiteHeader.js'", "'@/components/SiteHeader'")
+        : component;
 }
 
 function viteMain() {
@@ -943,6 +966,13 @@ export default [
                     allow: ['**/*.css'],
                 },
             ],
+        },
+    },
+
+    {
+        files: ['src/components/SiteHeader.tsx', 'src/components/SiteFooter.tsx'],
+        rules: {
+            '@next/next/no-img-element': 'off',
         },
     },
 
@@ -1067,71 +1097,10 @@ export default function HomePage(): JSX.Element {
 }
 
 function nextGlobalCss() {
-    return `@import '../constants/color.css';
-@import '../constants/font.css';
-
-/* Keep global.css for resets, tokens, and app shell. Put component CSS next to
-   its component, like components/Nav.tsx with components/Nav.css. */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html {
-    background-color: var(--clr-bg);
-    color: var(--clr-text);
-}
-
-body {
-    min-width: 320px;
-    min-height: 100vh;
-    font: var(--font-body-md);
-    line-height: 1.5;
-    background-color: var(--clr-bg);
-}
-
-a {
-    color: inherit;
-}
-
-:focus-visible {
-    outline: calc(var(--space-16) / 8) solid var(--clr-accent);
-    outline-offset: calc(var(--space-16) / 8);
-}
-
-.app {
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    padding: var(--space-32) var(--space-24);
-}
-
-.app__content {
-    display: grid;
-    justify-items: center;
-    gap: var(--space-16);
-    width: fit-content;
-    max-width: 100%;
-    text-align: center;
-}
-
-.app__eyebrow {
-    color: var(--clr-text-muted);
-    font: var(--font-label);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.app__title {
-    font: var(--font-display);
-}
-
-.app__description {
-    color: var(--clr-text-muted);
-}
-`;
+    return readFileSync(
+        new URL('../template/src/global.css', import.meta.url),
+        'utf8'
+    ).replaceAll("@import './constants/", "@import '../constants/");
 }
 
 function lintStagedCommand() {
