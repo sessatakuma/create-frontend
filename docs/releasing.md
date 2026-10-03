@@ -1,92 +1,55 @@
-# Releasing
+# Releasing Sessatakuma Frontend
 
-This repo is template source plus release tooling. The root package is private.
-Only `create-rail` is published to public npm.
+The root package is private. The publishable package is
+`@sessatakuma/create-frontend` in `packages/create-frontend`; publishing requires
+access to the sessatakuma npm scope. The release configuration targets the fork
+and the scoped package, with public npm access.
 
-## Release Flow
-
-1. Start from a clean worktree on `main`.
-2. Make sure GitHub CLI is installed and authenticated:
-    - `gh auth status`
-3. Run one of:
-    - `npm run release`
-    - `pnpm run release`
-    - `yarn run release`
-    - `bun run release`
-4. If the current version is not yet on npm, choose whether to release it as-is
-   or bump first.
-5. Otherwise choose `patch`, `minor`, or `major`.
-6. The script will:
-    - bump the root `package.json` version
-    - bump `packages/create-rail/package.json`
-    - run `check`
-    - verify GitHub CLI can create a GitHub release
-    - list commits added since the previous `v*` release tag
-    - ask for one or more release-note bullet points
-    - commit
-    - create the matching `v*` tag
-    - push `main`
-    - push the tag
-    - run `npm login --registry=https://registry.npmjs.org`
-    - publish `packages/create-rail` to public npm
-    - create a matching GitHub release from the pushed tag
-    - skip the release commit if no version files changed
-    - skip the GitHub release if it already exists
-    - require a version bump when the matching `v*` tag already exists on a
-      different commit
-
-## Dry Run
-
-Use one of:
-
-- `npm run release -- --dry-run`
-- `pnpm run release -- --dry-run`
-- `yarn run release --dry-run`
-- `bun run release -- --dry-run`
-
-The dry run updates files and runs checks, but skips commit, tag, push, GitHub
-release, npm login, and npm publish.
-
-## GitHub Release
-
-GitHub release creation uses the existing tag source archives. It does not
-publish a GitHub Package or upload npm artifacts.
-
-Before pushing or publishing, the release script prints the commits since the
-previous `v*` release tag and prompts for release-note bullets. It uses those
-bullets first, then appends GitHub's generated release notes.
-
-The release body format is:
-
-```md
-## What Changed:
-
-- Your release bullet
-- Another release bullet
-
-GitHub generated release notes...
-```
+Before releasing, use Bun 1.3.9 and Node.js 22.22.2:
 
 ```bash
-gh release create v0.8.0 --title v0.8.0 --notes "$RELEASE_NOTES" --verify-tag
+bun install --frozen-lockfile
+bun run check
+bun run test
+bun run verify:presets
+npm pack ./packages/create-frontend --dry-run
+bun run release
 ```
 
-## npm Publish
+`release-it` checks the repository, synchronizes the CLI version, commits and tags
+the release, pushes it, publishes the scoped package, and creates the GitHub
+release. Release only from a reviewed clean main branch. `bun run release --
+--dry-run` exercises the release plan without publishing.
 
-Public npm publish is performed by the release script. npm may prompt you to
-press ENTER to open the browser login flow before publishing.
+## Refresh dependency locks
+
+Edit the root/template manifests or pinned framework versions in `bin/org.mjs`
+first. Then deliberately regenerate and verify the locks:
 
 ```bash
-npm login --registry=https://registry.npmjs.org
-npm publish ./packages/create-rail --registry=https://registry.npmjs.org
+bun install --lockfile-only --ignore-scripts
+bun run refresh:locks
+bun install --frozen-lockfile
+bun run test
+bun run verify:presets
 ```
 
-## Legacy Package
+`refresh:locks` is maintenance tooling. It writes all eight framework/icon/query
+locks using the same age gate. Scaffolding selects the matching bundled variant;
+scaffolding and CI never run lock refresh.
 
-Keep `create-hsi-app` and `hsi-app` deprecated on npm.
+## Design source at creation time
 
-## Notes
+Each CLI run fetches the latest `sessatakuma/design.md` main commit and copies its
+guide, assets, licenses, and any reference documents into the generated repository.
+The npm package ships the fetcher; it does not contain a release-time design snapshot.
+Generated provenance records the fetched commit and guide SHA-256. Updating the
+design repository's main branch takes effect for the next CLI run without a
+generator release. Existing generated repositories retain their copied snapshot.
 
-- `scripts/` is ignored by npm tarballs.
-- Rail removes repo-only tooling from generated apps.
-- Direct GitHub template clones still include repo-only tooling by design.
+Tests use local Git fixtures to verify main updates and fetch/source failures.
+Default preset verification fetches the actual private design repository using
+your Git credentials before building each app. CI explicitly runs
+`bun run verify:presets --fixture-design` to build both presets with a local Git
+fixture; its repository-scoped token does not have access to the private design repo.
+Upstream MIT attribution and fetched font/Lucide license notices are retained.

@@ -1,0 +1,25 @@
+.product-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-primary);
+}
+
+.product-shell > main {
+    flex: 1;
+}
+
+.page-content {
+    padding: var(--space-32);
+}
+
+.page-content h1 {
+    font-size: var(--font-size-heading);
+    font-weight: 700;
+}
+
+@media (max-width: 767px) {
+    .page-content {
+        padding: var(--space-32) var(--space-24);
+    }
+}

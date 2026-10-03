@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.next/
+.open-next/
+.cloudflare-check/
+.wrangler/
+*.tsbuildinfo
+bun.lock
+release-it*.config.cjs
+design.md
+assets/
+docs/

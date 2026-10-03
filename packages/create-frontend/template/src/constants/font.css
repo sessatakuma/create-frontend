@@ -1,0 +1,19 @@
+:root {
+    --font-body: 'Noto Sans JP', sans-serif;
+    --font-size-body: 16px;
+    --font-size-product: 20px;
+    --font-size-heading: 32px;
+    --space-8: 8px;
+    --space-16: 16px;
+    --space-24: 24px;
+    --space-32: 32px;
+    --space-48: 48px;
+    --space-80: 80px;
+    --size-focus: 2px;
+    --size-header: 64px;
+    --size-header-bear: 32px;
+    --size-footer-bear: 96px;
+    --size-social-icon: 24px;
+    --size-social-control: 48px;
+    --duration-interaction: 200ms;
+}

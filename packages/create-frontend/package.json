@@ -1,0 +1,46 @@
+{
+    "name": "@sessatakuma/create-frontend",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Create a Sessatakuma frontend repository with deterministic checks and Cloudflare deployment configuration.",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sessatakuma/rail.git"
+    },
+    "homepage": "https://github.com/sessatakuma/rail#readme",
+    "bugs": {
+        "url": "https://github.com/sessatakuma/rail/issues"
+    },
+    "keywords": [
+        "coding-agents",
+        "nextjs",
+        "react",
+        "scaffold",
+        "typescript",
+        "vite"
+    ],
+    "dependencies": {
+        "@clack/prompts": "0.11.0",
+        "picocolors": "1.1.1",
+        "prettier": "3.8.3",
+        "@ianvs/prettier-plugin-sort-imports": "4.7.1"
+    },
+    "bin": {
+        "create-frontend": "bin/create-frontend.mjs"
+    },
+    "files": [
+        "bin",
+        "template",
+        "lockfiles",
+        "README.md",
+        "bun.lock"
+    ],
+    "engines": {
+        "node": ">=22.22.2"
+    },
+    "license": "MIT",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org"
+    }
+}
