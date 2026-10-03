@@ -28,25 +28,23 @@ export function verifyGitHubPlan(plan) {
     if (permission !== organization) {
         throw new Error(`Cannot access ${organization}.`);
     }
-    const repos = JSON.parse(
+    let exists = true;
+    try {
         gh([
             'api',
-            '--method',
-            'GET',
-            `orgs/${organization}/repos`,
-            '-f',
-            `type=all`,
-            '-f',
-            'per_page=100',
-            '--paginate',
-            '--slurp',
-        ])
-    ).flat();
-    if (
-        repos.some(
-            (repo) => repo.name.toLowerCase() === plan.repoName.toLowerCase()
-        )
-    ) {
+            `repos/${organization}/${plan.repoName}`,
+            '--include',
+            '--silent',
+        ]);
+    } catch (error) {
+        if (
+            !/^HTTP\/[\d.]+ 404(?:\s|$)/m.test(error.stdout?.toString() ?? '')
+        ) {
+            throw error;
+        }
+        exists = false;
+    }
+    if (exists) {
         throw new Error(
             `Repository ${organization}/${plan.repoName} already exists.`
         );

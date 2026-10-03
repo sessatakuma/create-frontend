@@ -15,10 +15,14 @@ const required = [
     '.github/workflows/ci.yml',
     '.github/CODEOWNERS',
     '.github/PULL_REQUEST_TEMPLATE.md',
-    '.github/ruleset.json',
     ...(generator
         ? ['packages/create-frontend/bin/design.mjs']
-        : ['design.md', 'design-source.json', 'wrangler.jsonc']),
+        : [
+              'design.md',
+              'design-source.json',
+              'wrangler.jsonc',
+              '.github/ruleset.json',
+          ]),
 ];
 let failed = false;
 for (const file of required) {

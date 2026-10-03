@@ -35,9 +35,8 @@ bun run verify:presets
 ```
 
 `refresh:locks` is maintenance tooling. It writes all eight framework/icon/query
-locks using the same age gate. Copy the default Vite lock to
-`packages/create-frontend/template/bun.lock` when updating the template baseline.
-Scaffolding and CI never run lock refresh.
+locks using the same age gate. Scaffolding selects the matching bundled variant;
+scaffolding and CI never run lock refresh.
 
 ## Design source at creation time
 

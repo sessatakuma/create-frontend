@@ -34,7 +34,12 @@ if (tool === 'gh') {
   if (command === 'api user --jq .login') { console.log('creator'); }
   else if (args[1]?.startsWith('users/')) { console.log(args[1].split('/')[1]); }
   else if (command === 'api orgs/sessatakuma --jq .login') { console.log('sessatakuma'); }
-  else if (command.includes('orgs/sessatakuma/repos')) { console.log(process.env.MOCK_FAIL === 'exists' ? '[[{"name":"taken"}]]' : '[[]]'); }
+  else if (/^api repos\/sessatakuma\/[^ ]+ --include --silent$/.test(command)) {
+    if (process.env.MOCK_FAIL === 'lookup-network') { console.error('connection refused'); process.exit(1); }
+    const status = { exists: 200, 'lookup-forbidden': 403, 'lookup-server': 500 }[process.env.MOCK_FAIL] ?? 404;
+    console.log('HTTP/2.0 ' + status + '\n');
+    if (status !== 200) { process.exit(1); }
+  }
   else if (command.includes('/permission')) { console.log('{"permission":"maintain"}'); }
 }
 if (tool === 'git' && command === 'var GIT_AUTHOR_IDENT') { console.log('Creator <creator@example.org>'); }
@@ -94,6 +99,14 @@ test('creates only the org repo and CODEOWNERS names its maintainer', () => {
         '* @product-maintainer\n'
     );
     const create = calls.find((call) => call.args[0] === 'repo');
+    assert.deepEqual(
+        calls.find((call) => call.args.includes('--include')).args,
+        ['api', 'repos/sessatakuma/remote-app', '--include', '--silent']
+    );
+    assert.equal(
+        calls.some((call) => call.args.includes('orgs/sessatakuma/repos')),
+        false
+    );
     assert.deepEqual(create.args, [
         'repo',
         'create',
@@ -137,10 +150,13 @@ test('authenticated creator is the default maintainer', () => {
     );
 });
 
-test('authentication and name collisions fail without local-only fallback', () => {
+test('authentication, collisions and lookup errors fail before writing a scaffold', () => {
     for (const [name, failure] of [
         ['unauthenticated', 'auth'],
         ['taken', 'exists'],
+        ['lookup-forbidden', 'lookup-forbidden'],
+        ['lookup-server', 'lookup-server'],
+        ['lookup-network', 'lookup-network'],
     ]) {
         const { target, result, calls } = invoke(name, [], failure);
         assert.notEqual(result.status, 0);

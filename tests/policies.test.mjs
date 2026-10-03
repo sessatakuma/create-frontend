@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import {
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -36,6 +42,19 @@ test('missing configs and invalid config syntax fail without injection', () => {
         0
     );
     rmSync(path.join(target, 'duplicate.yml'));
+    const rulesetPath = path.join(target, '.github/ruleset.json');
+    const ruleset = readFileSync(rulesetPath);
+    rmSync(rulesetPath);
+    const missingRuleset = spawnSync(process.execPath, [script], {
+        cwd: target,
+        encoding: 'utf8',
+    });
+    assert.notEqual(missingRuleset.status, 0);
+    assert.match(
+        String(missingRuleset.stderr),
+        /Missing required configuration: \.github\/ruleset\.json/
+    );
+    writeFileSync(rulesetPath, ruleset);
     rmSync(path.join(target, '.prettierrc'));
     const result = spawnSync(process.execPath, [script], {
         cwd: target,
