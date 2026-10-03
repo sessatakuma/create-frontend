@@ -20,5 +20,5 @@ required in every mode, with authenticated Git read access to the private design
 repository; fetch/source failures stop creation without a cached
 fallback. The included provenance records the fetched revision and checksum.
 
-See [CLI options](https://github.com/sessatakuma/rail/blob/main/docs/CLI.md) and
-[release maintenance](https://github.com/sessatakuma/rail/blob/main/docs/releasing.md).
+See [CLI options](https://github.com/sessatakuma/create-frontend/blob/main/docs/CLI.md) and
+[release maintenance](https://github.com/sessatakuma/create-frontend/blob/main/docs/releasing.md).

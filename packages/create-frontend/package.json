@@ -5,11 +5,11 @@
     "description": "Create a Sessatakuma frontend repository with deterministic checks and Cloudflare deployment configuration.",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/sessatakuma/rail.git"
+        "url": "git+https://github.com/sessatakuma/create-frontend.git"
     },
-    "homepage": "https://github.com/sessatakuma/rail#readme",
+    "homepage": "https://github.com/sessatakuma/create-frontend#readme",
     "bugs": {
-        "url": "https://github.com/sessatakuma/rail/issues"
+        "url": "https://github.com/sessatakuma/create-frontend/issues"
     },
     "keywords": [
         "coding-agents",
